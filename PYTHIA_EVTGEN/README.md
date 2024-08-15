@@ -4,6 +4,8 @@ This part of the repository contains the code to generate the Monte Carlo sample
 
 ## Environment setup
 
+You can setup the environment in your account, but the better choice is to use Singularity container. The Singularity container is a kind of container which can be used in the HTCondor system. You can find the Singularity container in this link: https://docs.sylabs.io/guides/3.5/user-guide/index.html
+
 the dependences of EVTGEN are include in this link: https://cernbox.cern.ch/s/s9aLhda6ydnqgAo
 
 You need to download it to your local by using this command:
