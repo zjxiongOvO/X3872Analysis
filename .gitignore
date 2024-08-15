@@ -1,0 +1,11 @@
+.vscode/
+*.root
+*.pdf
+*.png
+*.so
+*.o
+*.a
+*.log
+output/
+input/
+core_dump*
