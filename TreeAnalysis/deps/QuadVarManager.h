@@ -7,7 +7,16 @@
 #include "../header/EvtgenSim.C"
 #include "../header/SkimmedTree.h"
 #include "../header/SkimmedTree.C"
+#include "TFile.h"
+#include "TTree.h"
+#include "TMath.h"
+#include "TVector.h"
+#include "TLorentzVector.h"
+#include "Math/Vector4D.h"
+#include "Math/Vector3D.h"
+#include "Math/GenVector/Boost.h"
 
+using namespace std;
 class QuadVarManager {
 public:
     enum Variables {
@@ -110,8 +119,8 @@ QuadVarManager::QuadVarManager(string filename) {
     tree->Branch("fDiTracksMass", &value[Variables::kDihardonMass], "fDiTracksMass/D");
     tree->Branch("fDiTracksPt", &value[Variables::kDihardonPt], "fDiTracksPt/D");
     tree->Branch("fDiTracksSign", &value[Variables::kDihardonSign], "fDiTracksSign/D");
-    tree->Branch("fTrackPt1", &value[Variables::kPionP1], "fTrackPt1/D");
-    tree->Branch("fTrackPt2", &value[Variables::kPionP2], "fTrackPt2/D");
+    tree->Branch("fTrackPt1", &value[Variables::kPionPt1], "fTrackPt1/D");
+    tree->Branch("fTrackPt2", &value[Variables::kPionPt2], "fTrackPt2/D");
     tree->Branch("fkDeltaPhiPiPi", &value[Variables::kDeltaPhi], "fkDeltaPhiPiPi/D");
     tree->Branch("fkDeltaEtaPiPi", &value[Variables::kDeltaEta], "fkDeltaEtaPiPi/D");
 }
@@ -150,7 +159,6 @@ void QuadVarManager::FillSim(EvtgenSim* sim) {
     value[kDileptonPt] = sim->JpsiPt;
     value[kDileptonEta] = sim->JpsiEta;
     value[kDileptonSign] = 0;
-    // value[kDihardonMass] = sqrt(2*sim->PiPlusPt*sim->PiMinusPt*(cosh(sim->PiPlusEta - sim->PiMinusEta) - cos(sim->PiPlusPhi - sim->PiMinusPhi)));
     ROOT::Math::PtEtaPhiMVector Pionplus(sim->PiPlusPt, sim->PiPlusEta, sim->PiPlusPhi, 0.13957);
     ROOT::Math::PtEtaPhiMVector Pionminus(sim->PiMinusPt, sim->PiMinusEta, sim->PiMinusPhi, 0.13957);
     ROOT::Math::PtEtaPhiMVector DiPion = Pionplus + Pionminus;

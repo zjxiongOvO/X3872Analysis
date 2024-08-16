@@ -23,3 +23,10 @@ root [0] T->MakeClass("Quadplet")
 ```
 
 ### tasks
+The first step is to convert the Evtgen simulation tree and the reduced X(3872) table into a skimmed tree. The skimmed tree is used for ML training and Analysis.
+
+We have a task named `RunTreeMaker.cxx` which is used for this purpose. The task is defined in the `tasks` directory. For the Evtgen simulation tree, It will convert the tree into a skimmed tree. For the reduced X(3872) table, it will do a pre-filter to reduce the size of the tree.
+
+After the conversion, you can do additional filter and analysis using the `RunTreeAnalysis.cxx` task. And calculate the Acceptance, draw comparison plots, Signal-Extraction, etc. By using the `DrawAnalysisResults.cxx` task.
+
+It will also produce a `Skimmed Tree` which is used for ML training.

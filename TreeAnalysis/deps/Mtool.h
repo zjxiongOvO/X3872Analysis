@@ -15,6 +15,7 @@ using namespace std;
 #include <TLine.h>
 #include <TObjArray.h>
 #include <TObjString.h>
+#include <TLegend.h>
 
 namespace MTool {
     //project the nD histogram to 1D histogram

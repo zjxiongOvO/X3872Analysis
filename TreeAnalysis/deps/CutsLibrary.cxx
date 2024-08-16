@@ -22,4 +22,4 @@ QuadAnalysisCuts* FindCut(string cutname){
     // }
 
     return cut;
-}
+};
