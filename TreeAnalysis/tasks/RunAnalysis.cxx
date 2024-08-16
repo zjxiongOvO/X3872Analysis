@@ -5,8 +5,8 @@
 // and Create the skimmed tree for the further analysis.
 
 #include "../deps/HistoAndPlot.h"
-#include "../deps/QaudVarManager.h"
 #include "../deps/QuadAnalysisCuts.h"
+#include "../deps/QuadVarManager.h"
 #include <TF1.h>
 
 #include "../deps/CutsLibrary.cxx"
@@ -26,21 +26,20 @@ void RunAnalysis()
     for (int i = 0; i < dataPathList.size(); i++){
         TFile* file = new TFile(dataPathList[i].c_str());
         SkimmedTree* tree = new SkimmedTree((TTree*)file->Get("tree"));
-        QaudVarManager* var = new QaudVarManager();
+        QuadVarManager* var = new QuadVarManager();
         
         for (int j = 0; j < CutNameList.size(); j++){
-            ClassicalCuts* cut = FindCut(CutNameList[j]);
+            QuadAnalysisCuts* cut = FindCut(CutNameList[j]);
             TObjArray* array = new TObjArray();
-            DefineHistograms(array);
+            QuadHistos::DefineHistograms(array);
             for (int k = 0; k < tree->fChain->GetEntries(); k++) {
                 tree->fChain->GetEntry(k);
                 var->FillSkimmedTree(tree);
                 if (cut->isInCut(var->value)){
-                    FillHistograms(array, var->value);
+                    QuadHistos::FillHistograms(array, var->value);
                 }
             }
-            WriteHistograms(array, myfile, Form("%s_%s", dataNameList[i].c_str(), CutNameList[j].c_str()));
-            // clear array
+            QuadHistos::WriteHistograms(array, myfile, Form("%s_%s", dataNameList[i].c_str(), CutNameList[j].c_str()));
             array->Clear("C");
         }
     }
@@ -49,31 +48,31 @@ void RunAnalysis()
     for (int i = 0; i < simPathList.size(); i++){
         TFile* file = new TFile(simPathList[i].c_str());
         SkimmedTree* tree = new SkimmedTree((TTree*)file->Get("tree"));
-        QaudVarManager* var = new QaudVarManager();
+        QuadVarManager* var = new QuadVarManager();
 
         // before selection
         TObjArray* arraybf = new TObjArray();
-        DefineHistograms(arraybf);
+        QuadHistos::DefineHistograms(arraybf);
         for (int k = 0; k < tree->fChain->GetEntries(); k++) {
             tree->fChain->GetEntry(k);
             var->FillSkimmedTree(tree);
-            FillHistograms(arraybf, var->value);
+            QuadHistos::FillHistograms(arraybf, var->value);
         }
-        WriteHistograms(arraybf, myfile, Form("%s_before", simNameList[i].c_str()));
+        QuadHistos::WriteHistograms(arraybf, myfile, Form("%s_before", simNameList[i].c_str()));
         arraybf->Clear("C");
         
         for (int j = 0; j < CutNameList.size(); j++){
-            ClassicalCuts* cut = FindCut(CutNameList[j]);
+            QuadAnalysisCuts* cut = FindCut(CutNameList[j]);
             TObjArray* array = new TObjArray();
-            DefineHistograms(array);
+            QuadHistos::DefineHistograms(array);
             for (int k = 0; k < tree->fChain->GetEntries(); k++) {
                 tree->fChain->GetEntry(k);
                 var->FillSkimmedTree(tree);
                 if (cut->isInCut(var->value)){
-                    FillHistograms(array, var->value);
+                    QuadHistos::FillHistograms(array, var->value);
                 }
             }
-            WriteHistograms(array, myfile, Form("%s_%s", simNameList[i].c_str(), CutNameList[j].c_str()));
+            QuadHistos::WriteHistograms(array, myfile, Form("%s_%s", simNameList[i].c_str(), CutNameList[j].c_str()));
             array->Clear("C");
         }
     }
