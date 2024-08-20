@@ -34,6 +34,7 @@ and if you want apply this model to a tree, you can run the following command:
 The configuration file is in the `config` directory. You can modify the configuration file to change the training parameters.
 
 About the yml file:
+```yaml
 - `vars_to_sliced`: list of variables need to be sliced, e.g. `['Centrality', 'Pt']`
 - `sliced_arrays`: list of arrays need to be sliced, e.g. ` - [0, 30, 60, 90]`
                                                           ` - [0, 1, 2, 3]`
@@ -112,6 +113,7 @@ About the yml file:
 
 -`apply`:
     - `columns_to_save`: ['Mass', 'Pt', 'model_output'] # list of columns to save in the output file
+```
 
 
 ## ONNX model
