@@ -16,6 +16,9 @@ Make sure you have these packages installed in your system:
     pip3 install uproot
     pip3 install xxhash
     pip3 install lz4
+    pip3 install onnx==1.14.1
+    pip3 install onnxconverter-common==1.14.0
+    pip3 install onnxmltools==1.11.2
 ```
 
 ## Train the models
