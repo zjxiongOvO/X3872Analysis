@@ -115,5 +115,11 @@ apply:
     columns_to_save: ['Mass', 'Pt', 'model_output'] # list of columns to save in the output file
 ```
 
-
 ## ONNX model
+Sometimes you may want to convert the trained model to ONNX format. Because ONNX is a standard format for machine learning models, it allows you to use the model in different frameworks. For example, you can use the ONNX model in O2Physics. (upload it to CCDB, and use it in the analysis)
+
+To convert the model to ONNX format, you can run the following command:
+    
+```bash
+    python3 task/RunModelTraining.py --onnx config/configML_example.yml
+```

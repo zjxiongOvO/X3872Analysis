@@ -45,6 +45,7 @@ parser.add_argument('cfgFileName', metavar='text', default='cfgFileName.yml',
 analysis_type_parser=parser.add_mutually_exclusive_group(required=True)
 analysis_type_parser.add_argument("--train", help="perform only training and testing", action="store_true")
 analysis_type_parser.add_argument("--apply", help="perform only application", action="store_true")
+analysis_type_parser.add_argument("--onnx", help="perform only ONNX conversion", action="store_true")
 args = parser.parse_args()
 
 with open(args.cfgFileName, 'r') as ymlCfgFile:
@@ -419,4 +420,7 @@ for combo in combinations:
         train_and_test_sliced(vars_to_sliced, combo)
     if args.apply:
         apply_sliced(vars_to_sliced, combo)
+    if args.onnx:
+        print("ONNX conversion is not implemented yet!")
+        sys.exit()
     
