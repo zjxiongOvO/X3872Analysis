@@ -28,6 +28,10 @@ import shutil
 from pathlib import Path
 import itertools
 
+import onnxmltools
+from onnxmltools.convert.common.data_types import FloatTensorType
+
+
 # Define the function to extract all possible combinations of intervals
 def extract_interval_combinations(*arrays):
     for array in arrays:
@@ -70,6 +74,10 @@ if args.apply:
     print("It is applying saved models!")
     print("Output directory: ",output_path_apply)
     conf_outputpath=output_path_apply+'/config'
+if args.onnx:
+    print("It is converting to ONNX!")
+    print("Output directory: ",output_path_train)
+    conf_outputpath=output_path_train+'/config'
 if os.path.isdir(conf_outputpath):
     print((f'\033[93mWARNING: Output directory \'{conf_outputpath}\' already exists,'
         ' overwrites possibly ongoing!\033[0m'))
@@ -233,14 +241,14 @@ def train_and_test_sliced(vars_to_sliced, combo):
     vars_to_draw = vars_to_read;
 
     plot_utils.plot_distr([bkgH, promptH], vars_to_draw, bins=100, labels=leg_labels, log=True, density=True, figsize=(12, 12), alpha=0.3, grid=False, histtype='step', stacked=True) ##density means normalization open log
-    plt.savefig(fig_outputpath+'QA1'+SavedTAG+'.pdf',dpi=1000)
+    plt.savefig(fig_outputpath+'QA1_'+SavedTAG+'.pdf',dpi=1000)
 
     plt.subplots_adjust(left=0.06, bottom=0.06, right=0.99, top=0.96, hspace=0.55, wspace=0.55)
     features_correlation = plot_utils.plot_corr([bkgH, promptH], vars_to_draw, leg_labels)
     plt.xticks(fontsize=15,fontweight=500)
     plt.yticks(fontsize=15,fontweight=500)
-    features_correlation[0].savefig(fig_outputpath+'correlation_bkg'+SavedTAG+'.pdf',dpi=1000)
-    features_correlation[1].savefig(fig_outputpath+'correlation_signal'+SavedTAG+'.pdf',dpi=1000)
+    features_correlation[0].savefig(fig_outputpath+'correlation_bkg_'+SavedTAG+'.pdf',dpi=1000)
+    features_correlation[1].savefig(fig_outputpath+'correlation_signal_'+SavedTAG+'.pdf',dpi=1000)
 
     # --------------------------------------------
 
@@ -261,11 +269,7 @@ def train_and_test_sliced(vars_to_sliced, combo):
     else:
         model_hdl.set_model_params(hyper_pars_optimized)
 
-    if (inputCfg['ClassificationMethod'] == "3classification"):
-        model_hdl.train_test_model(train_test_data,False,False,average='macro',multi_class_opt='ovo')
-        #model_hdl.train_test_model(train_test_data,False,False,average='weighted',multi_class_opt='ovo')
-    else:
-        model_hdl.train_test_model(train_test_data,False,False,average='macro')
+    model_hdl.train_test_model(train_test_data,False,False,average='macro')
 
     # save model handler in pickle
     model_outputpath=output_path_train+'/TrainedModels'
@@ -274,8 +278,8 @@ def train_and_test_sliced(vars_to_sliced, combo):
             ' overwrites possibly ongoing!\033[0m'))
     else:
         os.makedirs(model_outputpath)
-    model_hdl.dump_model_handler(f'{model_outputpath}/ModelHandler{SavedTAG}.pickle')
-    model_hdl.dump_original_model(f'{model_outputpath}/XGBoostModel{SavedTAG}.model', True)
+    model_hdl.dump_model_handler(f'{model_outputpath}/ModelHandler_{SavedTAG}.pickle')
+    model_hdl.dump_original_model(f'{model_outputpath}/XGBoostModel_{SavedTAG}.model', True)
 
     hyperparams_after_optimization = model_hdl.get_model_params()
     #print(hyperparams_after_optimization)
@@ -284,7 +288,7 @@ def train_and_test_sliced(vars_to_sliced, combo):
     model_hdl.get_training_columns()
     print("mytest")
     print("training_columns:",model_hdl.get_training_columns())
-    with open(output_path_train+'/TrainedModels/'+'machine_learning_parameters'+SavedTAG+'.txt',"w") as file:
+    with open(output_path_train+'/TrainedModels/'+'machine_learning_parameters_'+SavedTAG+'.txt',"w") as file:
         temp = "\n"
         file.write(str(hyperparams_after_optimization)+temp)
         file.write(str(model_hdl.get_training_columns()))
@@ -298,7 +302,7 @@ def train_and_test_sliced(vars_to_sliced, combo):
     y_pred_test  = model_hdl.predict(train_test_data[2],False)
 
     plot_utils.plot_precision_recall(train_test_data[1],y_pred_train)
-    plt.savefig(fig_outputpath+'precision_recall'+SavedTAG+'.pdf',dpi=1000)
+    plt.savefig(fig_outputpath+'precision_recall_'+SavedTAG+'.pdf',dpi=1000)
 
 
     temp1 = 'ALICE'
@@ -312,7 +316,7 @@ def train_and_test_sliced(vars_to_sliced, combo):
     plt.ylabel('Counts',fontsize=20,fontweight=500)
     plt.ylim(8.e-3,3.e3)
     plt.legend(frameon=False,loc=1,fontsize=13)
-    ml_out_fig.savefig(fig_outputpath+'train_and_test'+SavedTAG+'.pdf',dpi=1000)
+    ml_out_fig.savefig(fig_outputpath+'train_and_test_'+SavedTAG+'.pdf',dpi=1000)
 
     ## ROC AUC
     roc_train_test_fig = plot_utils.plot_roc_train_test(train_test_data[3], y_pred_test,train_test_data[1], y_pred_train, None, leg_labels)
@@ -323,12 +327,12 @@ def train_and_test_sliced(vars_to_sliced, combo):
     plt.ylabel('True Positive Rate',fontsize=18,fontweight=500)
     plt.legend(frameon=False,fontsize=15)
     plt.text(0.5,0.9,f'{temp1}',fontsize=18,fontfamily='DejaVu Sans',fontweight='heavy')
-    roc_train_test_fig.savefig(fig_outputpath+'roc'+SavedTAG+'.pdf',dpi=1000)
+    roc_train_test_fig.savefig(fig_outputpath+'roc_'+SavedTAG+'.pdf',dpi=1000)
 
     ## Feature Importance
     features_importance = plot_utils.plot_feature_imp(train_test_data[2],train_test_data[3],model_hdl)
-    features_importance[0].savefig(fig_outputpath+'feature_imp_0'+SavedTAG+'.pdf',dpi=1000)
-    features_importance[1].savefig(fig_outputpath+'feature_imp_1'+SavedTAG+'.pdf',dpi=1000)
+    features_importance[0].savefig(fig_outputpath+'feature_imp_0_'+SavedTAG+'.pdf',dpi=1000)
+    features_importance[1].savefig(fig_outputpath+'feature_imp_1_'+SavedTAG+'.pdf',dpi=1000)
 
 
     print("Training finished!!!!")
@@ -380,7 +384,7 @@ def apply_sliced(vars_to_sliced, combo):
     del dataH_PM_input, dataH_PP_MM_input, simulationH_input
 
 
-    ModelPath = os.path.expanduser(f'{output_path_train}/TrainedModels/ModelHandler{SavedTAG}.pickle')
+    ModelPath = os.path.expanduser(f'{output_path_train}/TrainedModels/ModelHandler_{SavedTAG}.pickle')
     print(f'Loaded saved model: {ModelPath}')
     model_hdl = ModelHandler()
     model_hdl.load_model_handler(ModelPath)
@@ -411,6 +415,29 @@ def apply_sliced(vars_to_sliced, combo):
     print("Applying finished!!!!")
     print("<<-----------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-------------------------->>")
 
+def ConvertToONNX(vars_to_sliced, combo):
+    SavedTAG = ""
+    for i, var in enumerate(vars_to_sliced):
+        if i == 0:
+            SavedTAG += f"{var}_{combo[i][0]}_{combo[i][1]}"
+        else:
+            SavedTAG += f"_{var}_{combo[i][0]}_{combo[i][1]}"
+    print("SavedTAG = ",SavedTAG)
+    ModelPath = os.path.expanduser(f'{output_path_train}/TrainedModels/XGBoostModel_{SavedTAG}.model')
+    print(f'Convert to ONNX: {ModelPath}')
+
+    xgb_model = xgb.Booster()
+    xgb_model.load_model(ModelPath)
+    feauture_names = inputCfg['ml']['vars_to_learn']
+    input_shape = (1, len(feauture_names))
+    input_type = FloatTensorType(input_shape)
+
+    onnx_model = onnxmltools.convert.convert_xgboost(xgb_model, initial_types=[('input', input_type)])
+    onnxmltools.utils.save_model(onnx_model, f'{output_path_train}/TrainedModels/XGBoostModel_{SavedTAG}.onnx')
+
+    print("ONNX conversion finished!!!!")
+    print("<<-----------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-------------------------->>")
+
 combinations = extract_interval_combinations(*arrays)
 for combo in combinations:
     print("Machine Learning for the following intervals:")
@@ -421,6 +448,4 @@ for combo in combinations:
     if args.apply:
         apply_sliced(vars_to_sliced, combo)
     if args.onnx:
-        print("ONNX conversion is not implemented yet!")
-        sys.exit()
-    
+        ConvertToONNX(vars_to_sliced, combo)

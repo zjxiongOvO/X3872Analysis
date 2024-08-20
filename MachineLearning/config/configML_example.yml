@@ -1,10 +1,10 @@
 vars_to_sliced: ['Pt'] # list of variables to slice the data
 sliced_arrays:
-    - [7, 20]
+    - [0, 3, 5, 7, 10, 20]
 
 output:
-    train: '/data/xzj/minitree/ML/output/X3872/test'
-    apply: '/data/xzj/minitree/ML/output/X3872/test'
+    train: '/data/xzj/minitree/ML/output/X3872/0820'
+    apply: '/data/xzj/minitree/ML/output/X3872/0820'
 
 applycolumns: ['Mass','Pt','model_output']
 
@@ -24,7 +24,7 @@ input:
             path: '/data3/xzj/AliWorkdir/QA/SkimmedTree/X3872_JpsiRho_Swave.root'
             treename: 'tree'
         data_unlike:
-            path: '/data3/xzj/AliWorkdir/QA/SkimmedTree/Data_2022.root'
+            path: '/data3/xzj/AliWorkdir/QA/SkimmedTree/Data_2024.root'
             treename: 'tree'
         data_like:
             path: '/data3/xzj/AliWorkdir/QA/SkimmedTree/Data_2024.root'
