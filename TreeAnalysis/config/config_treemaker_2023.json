@@ -1,0 +1,7 @@
+{
+    "FilePath": "LHC23_pass4.root",
+    "TreePath": "DF_2298103926612928/O2rtdquadplet",
+    "Tag": "Data_2023",
+    "CutName": "MLprefilter1",
+    "RunType": 2
+}

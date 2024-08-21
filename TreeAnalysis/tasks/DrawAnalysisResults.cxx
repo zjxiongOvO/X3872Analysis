@@ -1,13 +1,36 @@
 #include "../deps/HistoAndPlot.h"
-
 #include "../deps/SignalExtraction_X3872.cxx"
+#include "../deps/json.hpp"
 
-void DrawAnalysisResults(){
+using json = nlohmann::json;
+
+json readConfig(const std::string& configFilePath) {
+    std::ifstream configFile(configFilePath);
+    if (!configFile) {
+        throw std::runtime_error("Cannot open config file: " + configFilePath);
+    }
+
+    json config;
+    configFile >> config;
+    return config;
+}
+
+void DrawAnalysisResults(string configpath){
     TFile* myfile = new TFile("output/Analysis.root", "read");
 
-    std::vector<string> dataNameList = {"2022", "2023", "2024"};
-    std::vector<string> simNameList = {"X(3872)", "#Psi(2S)"};
-    std::vector<string> CutNameList = {"debug1", "debug2"};
+    std::vector<string> dataNameList;
+    std::vector<string> simNameList;
+    std::vector<string> CutNameList;
+
+    try {
+        json config = readConfig(configpath);
+        dataNameList = config["DataName"].get<std::vector<std::string>>();
+        simNameList = config["SimName"].get<std::vector<std::string>>();
+        CutNameList = config["CutName"].get<std::vector<std::string>>();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return;
+    }
 
     // calculate efficiency
     std::vector<TList*> list_AfterSelection;
@@ -45,6 +68,10 @@ void DrawAnalysisResults(){
     QuadHistos::DrawMultHisto2d(list_QA, QAname, histoname::hDeltaR_Pt, "p_{T} [GeV]", "#Delta R", "output/DeltaR_Pt.pdf");
 
     // Signal Extraction for Data
-    TH1F* hUnlikeSign = (TH1F*)list_QA[0]->At(histoname::hMass)->Clone();
-    SignalExtraction_X3872(hUnlikeSign, 3.6, 4.0);
+    for (int i = 0; i < dataNameList.size(); i++){
+        for (int j = 0; j < CutNameList.size(); j++){
+            TH1F* hUnlikeSign = (TH1F*)list_QA[i*CutNameList.size() + j]->At(histoname::hMass)->Clone();
+            SignalExtraction_X3872(hUnlikeSign, 3.6, 4.0, Form("output/signalext_%s_%s.pdf", dataNameList[i].c_str(), CutNameList[j].c_str()));
+        }
+    }
 }

@@ -7,20 +7,56 @@
 #include "../deps/HistoAndPlot.h"
 #include "../deps/QuadAnalysisCuts.h"
 #include "../deps/QuadVarManager.h"
+#include "../deps/json.hpp"
 #include <TF1.h>
 
 #include "../deps/CutsLibrary.cxx"
 
-// void RunAnalysis(TString dataPath, TString dataTag, TString simPath, TString simTag, TString cutName)
-void RunAnalysis()
+using json = nlohmann::json;
+
+json readConfig(const std::string& configFilePath) {
+    std::ifstream configFile(configFilePath);
+    if (!configFile) {
+        throw std::runtime_error("Cannot open config file: " + configFilePath);
+    }
+
+    json config;
+    configFile >> config;
+    return config;
+}
+
+void RunAnalysis(string configpath)
 {
     // init 
-    std::vector<string> dataPathList = {"SkimmedTree/Data_2022.root", "SkimmedTree/Data_2023.root", "SkimmedTree/Data_2024.root"};
-    std::vector<string> dataNameList = {"2022", "2023", "2024"};
-    std::vector<string> simPathList = {"SkimmedTree/X3872_JpsiRho_Swave.root", "SkimmedTree/Psi2S_VVPIPI.root"};
-    std::vector<string> simNameList = {"X(3872)", "#Psi(2S)"};
-    std::vector<string> CutNameList = {"debug1", "debug2"};
-    TFile* myfile = new TFile("output/Analysis.root", "recreate");
+    std::vector<string> dataPathList;
+    std::vector<string> dataNameList;
+    std::vector<string> simPathList;
+    std::vector<string> simNameList;
+    std::vector<string> CutNameList;
+    bool NeedSaveTree = false;
+    string SaveTreePath = "";
+    bool NeedUpdateFile = false;
+
+    try {
+        json config = readConfig(configpath);
+        dataPathList = config["DataPath"].get<std::vector<std::string>>();
+        dataNameList = config["DataName"].get<std::vector<std::string>>();
+        simPathList = config["SimPath"].get<std::vector<std::string>>();
+        simNameList = config["SimName"].get<std::vector<std::string>>();
+        CutNameList = config["CutName"].get<std::vector<std::string>>();
+        NeedSaveTree = config["NeedSaveTree"].get<bool>();
+        SaveTreePath = config["SaveTreePath"].get<std::string>();
+        NeedUpdateFile = config["NeedUpdateFile"].get<bool>();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return;
+    }
+
+    TFile* myfile;
+    if (NeedUpdateFile) myfile = new TFile("output/Analysis.root", "update");
+    else myfile = new TFile("output/Analysis.root", "recreate");
+
+    system(Form("mkdir -p %s", SaveTreePath.c_str()));
 
     // read data
     for (int i = 0; i < dataPathList.size(); i++){
@@ -29,6 +65,7 @@ void RunAnalysis()
         QuadVarManager* var = new QuadVarManager();
         
         for (int j = 0; j < CutNameList.size(); j++){
+            if (NeedSaveTree) var->CreateTree(Form("%s/%s_%s.root", SaveTreePath.c_str(), dataNameList[i].c_str(), CutNameList[j].c_str()));
             QuadAnalysisCuts* cut = FindCut(CutNameList[j]);
             TObjArray* array = new TObjArray();
             QuadHistos::DefineHistograms(array);
@@ -37,6 +74,7 @@ void RunAnalysis()
                 var->FillSkimmedTree(tree);
                 if (cut->isInCut(var->value)){
                     QuadHistos::FillHistograms(array, var->value);
+                    if (NeedSaveTree) var->FillToTree();
                 }
             }
             QuadHistos::WriteHistograms(array, myfile, Form("%s_%s", dataNameList[i].c_str(), CutNameList[j].c_str()));
@@ -62,6 +100,7 @@ void RunAnalysis()
         arraybf->Clear("C");
         
         for (int j = 0; j < CutNameList.size(); j++){
+            if (NeedSaveTree) var->CreateTree(Form("%s/%s_%s.root", SaveTreePath.c_str(), simNameList[i].c_str(), CutNameList[j].c_str()));
             QuadAnalysisCuts* cut = FindCut(CutNameList[j]);
             TObjArray* array = new TObjArray();
             QuadHistos::DefineHistograms(array);
@@ -70,6 +109,7 @@ void RunAnalysis()
                 var->FillSkimmedTree(tree);
                 if (cut->isInCut(var->value)){
                     QuadHistos::FillHistograms(array, var->value);
+                    if (NeedSaveTree) var->FillToTree();
                 }
             }
             QuadHistos::WriteHistograms(array, myfile, Form("%s_%s", simNameList[i].c_str(), CutNameList[j].c_str()));

@@ -1,0 +1,7 @@
+{
+    "FilePath": "input/LHC24_pass1.root",
+    "TreePath": "DF_2372458388316160/O2rtdquadplet",
+    "Tag": "2024",
+    "CutName": "dataprefilter",
+    "RunType": 2
+}

@@ -433,7 +433,7 @@ def ConvertToONNX(vars_to_sliced, combo):
     input_type = FloatTensorType(input_shape)
 
     onnx_model = onnxmltools.convert.convert_xgboost(xgb_model, initial_types=[('input', input_type)])
-    onnxmltools.utils.save_model(onnx_model, f'{output_path_train}/TrainedModels/XGBoostModel_{SavedTAG}.onnx')
+    onnxmltools.utils.save_model(onnx_model, f'{output_path_train}/TrainedModels/ONNXModel_{SavedTAG}.onnx')
 
     print("ONNX conversion finished!!!!")
     print("<<-----------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-------------------------->>")

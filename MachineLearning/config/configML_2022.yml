@@ -1,0 +1,82 @@
+vars_to_sliced: ['Pt'] # list of variables to slice the data
+sliced_arrays:
+    - [5, 20]
+
+output:
+    train: '/data3/xzj/X3872Analysis/MachineLearning/output/0820'
+    apply: '/data3/xzj/X3872Analysis/MachineLearning/output/0820'
+
+applycolumns: ['Mass','Pt','model_output']
+
+input: 
+    train:
+        sim:
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/X3872_JpsiRho_Swave_BasicAcc.root'
+            treename: 'tree'
+        data_unlike:
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_dataprefilter.root'
+            treename: 'tree'
+        data_like:
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_dataprefilter.root'
+            treename: 'tree'
+    apply:
+        sim:
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/X3872_JpsiRho_Swave_BasicAcc.root'
+            treename: 'tree'
+        data_unlike:
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_dataprefilter.root'
+            treename: 'tree'
+        data_like:
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_dataprefilter.root'
+            treename: 'tree'
+
+vars_to_read: ['Mass', 'Pt', 'Q', 'DeltaR', 'fkDeltaPhiPiPi', 'fDiTracksPt']
+vars_to_read_mc: ['Mass', 'Pt', 'Q', 'DeltaR', 'fkDeltaPhiPiPi', 'fDiTracksPt']
+
+data_prep:
+    event_type: 
+        same_event: True 
+        mixed_event: False 
+    sign_type:
+        unlikesign_sideband: True 
+        filt_bkg_mass_unlike: '(3.81 < Mass < 3.84 or 3.90 < Mass < 3.93)' # pandas query to select bkg candidates
+        likesign: False 
+        filt_bkg_mass_like: '3.84 < Mass < 3.90' # pandas query to select bkg candidates
+    size_of_datasets_max: 0
+    dataset_opt: 'equal'  # change how the dataset is built, options available: 'equal', 'max_signal'
+                        # 'equal' -> same number of prompt/FD/bkg (not using all the signal available)
+                        # 'maxsignal' -> try to use all the signal (prompt and FD) + add n_bkg = 2 * (n_prompt + n_FD)
+                        # 'ratio' -> control the ratio of signal and bkg 
+    dataset_ratio: 0.5 # ratio of signal and bkg in the dataset
+    bkg_mult: [1., 1., 1., 1.] # list of multipliers for (nPrompt + nFD) used to determine nCandBkg in the 'max_signal' option
+    seed_split: 42 # seed used for train_test_split(...)
+    test_fraction: 0.5 # fraction of data used for test set and efficiencies --> set to 1. if you want to apply the model to the full dataframes  
+
+ml:
+    raw_output: False # use raw_output (True) of probability (False) as output of the model
+    roc_auc_average: 'macro' # 'macro' or 'weighted'
+    roc_auc_approach: 'roc_auc_ovo'  # 'ovo' or 'ovr'
+    vars_to_learn: ['Q', 'DeltaR', 'fkDeltaPhiPiPi'] # list of training variables
+
+    hyper_par: 
+        do_hyp_opt: True 
+        njobs: -1 # number of parallel jobs used in hyper-parameter optimization, -1. to use all
+        nfolds: 5 # number of folds used in cross validation
+        initpoints: 10 # steps of random exploration you want to perform
+        niter: 25 # steps for bayesian optimization
+        bayes_opt_config: {'max_depth': !!python/tuple [2, 4], 
+                        'learning_rate': !!python/tuple [0.01, 0.2],
+                        'n_estimators': !!python/tuple [2, 380], 
+                        'min_child_weight': !!python/tuple [1, 10],
+                        'subsample': !!python/tuple [0.8, 1.], 
+                        'colsample_bytree': !!python/tuple [0.8, 1.]}
+                        # configuration dictionary for optimize_params_bayes()
+
+        hyper_pars_optimized: [{'max_depth':3, 'learning_rate':0.023, 'n_estimators':1028, 'min_child_weight':5, 'colsample':0.9, 'n_jobs':4, 'tree_method':hist}
+               ] # list of dicts of hyperparameters (one for each pT bin) bk=n_estimators1028
+
+  
+apply: 
+    columns_to_save: ['Mass', 'Pt', 'model_output'] # list of columns to save in the output file
+
+

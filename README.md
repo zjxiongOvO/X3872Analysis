@@ -10,3 +10,9 @@ This section is for analyzing the MC samples reduced X3872 table. Including Acce
 ## Machine Learning
 This section is for training and testing Machine Learning models for X3872 signal. Which depends on HIPE4ML package.
 
+## Initial Setup
+```bash
+cd $PATH_TO_X3872ANALYSIS
+source Alias.sh
+```
+
