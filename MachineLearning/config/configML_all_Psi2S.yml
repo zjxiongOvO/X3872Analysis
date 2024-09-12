@@ -1,33 +1,33 @@
 vars_to_sliced: ['Pt'] # list of variables to slice the data
 sliced_arrays:
-    - [5, 10]
+    - [0, 5, 40]
 
 output:
-    train: '/data3/xzj/X3872Analysis/MachineLearning/output/all/0826'
-    apply: '/data3/xzj/X3872Analysis/MachineLearning/output/all/0826'
+    train: '/data3/xzj/X3872Analysis/MachineLearning/output/all/0829'
+    apply: '/data3/xzj/X3872Analysis/MachineLearning/output/all/0829'
 
 applycolumns: ['Mass','Pt','model_output']
 
 input: 
     train:
         sim:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/X3872_reweight_MLprefilter2_X3872_Sim.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Psi2S_MLprefilter2_Psi2S_Sim.root'
             treename: 'tree'
         data_unlike:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_MLprefilter2_X3872.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_MLprefilter2_Psi2S.root'
             treename: 'tree'
         data_like:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_MLprefilter2_X3872.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_MLprefilter2_Psi2S.root'
             treename: 'tree'
     apply:
         sim:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/X3872_reweight_MLprefilter2_X3872_Sim.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Psi2S_MLprefilter2_Psi2S_Sim.root'
             treename: 'tree'
         data_unlike:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_MLprefilter2_X3872.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_MLprefilter2_Psi2S.root'
             treename: 'tree'
         data_like:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_MLprefilter2_X3872.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_MLprefilter2_Psi2S.root'
             treename: 'tree'
 
 vars_to_read: ['Mass', 'Pt', 'Q', 'DeltaR', 'fkDeltaPhiPiPi', 'fkDeltaEtaPiPi', 'fDiTracksPt', "DeltaR1", "DeltaR2"]

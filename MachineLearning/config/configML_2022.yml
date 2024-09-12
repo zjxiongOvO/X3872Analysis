@@ -1,37 +1,37 @@
 vars_to_sliced: ['Pt'] # list of variables to slice the data
 sliced_arrays:
-    - [5, 20]
+    - [7, 20]
 
 output:
-    train: '/data3/xzj/X3872Analysis/MachineLearning/output/0820'
-    apply: '/data3/xzj/X3872Analysis/MachineLearning/output/0820'
+    train: '/data3/xzj/X3872Analysis/MachineLearning/output/2022/0826_woQ'
+    apply: '/data3/xzj/X3872Analysis/MachineLearning/output/2022/0826_woQ'
 
 applycolumns: ['Mass','Pt','model_output']
 
 input: 
     train:
         sim:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/X3872_JpsiRho_Swave_BasicAcc.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/X3872_reweight_MLprefilter3_X3872_Sim.root'
             treename: 'tree'
         data_unlike:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_dataprefilter.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_MLprefilter3_X3872.root'
             treename: 'tree'
         data_like:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_dataprefilter.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_MLprefilter3_X3872.root'
             treename: 'tree'
     apply:
         sim:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/X3872_JpsiRho_Swave_BasicAcc.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/X3872_reweight_MLprefilter3_X3872_Sim.root'
             treename: 'tree'
         data_unlike:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_dataprefilter.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_MLprefilter3_X3872.root'
             treename: 'tree'
         data_like:
-            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_dataprefilter.root'
+            path: '/data3/xzj/X3872Analysis/TreeAnalysis/SkimmedTree/Data_2022_MLprefilter3_X3872.root'
             treename: 'tree'
 
-vars_to_read: ['Mass', 'Pt', 'Q', 'DeltaR', 'fkDeltaPhiPiPi', 'fDiTracksPt']
-vars_to_read_mc: ['Mass', 'Pt', 'Q', 'DeltaR', 'fkDeltaPhiPiPi', 'fDiTracksPt']
+vars_to_read: ['Mass', 'Pt', 'Q', 'DeltaR1', 'DeltaR2', 'fkDeltaPhiPiPi', 'fkDeltaEtaPiPi']
+vars_to_read_mc: ['Mass', 'Pt', 'Q', 'DeltaR1', 'DeltaR2', 'fkDeltaPhiPiPi', 'fkDeltaEtaPiPi']
 
 data_prep:
     event_type: 
@@ -56,7 +56,7 @@ ml:
     raw_output: False # use raw_output (True) of probability (False) as output of the model
     roc_auc_average: 'macro' # 'macro' or 'weighted'
     roc_auc_approach: 'roc_auc_ovo'  # 'ovo' or 'ovr'
-    vars_to_learn: ['Q', 'DeltaR', 'fkDeltaPhiPiPi'] # list of training variables
+    vars_to_learn: ['DeltaR1', 'DeltaR2', 'fkDeltaPhiPiPi', 'fkDeltaEtaPiPi'] # list of training variables
 
     hyper_par: 
         do_hyp_opt: True 

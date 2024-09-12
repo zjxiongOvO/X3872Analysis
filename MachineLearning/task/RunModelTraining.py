@@ -294,15 +294,15 @@ def train_and_test_sliced(vars_to_sliced, combo):
         file.write(str(model_hdl.get_training_columns()))
 
 
-    learning_curve = plot_utils.plot_learning_curves(model_hdl,train_test_data,10)
-    learning_curve.savefig(fig_outputpath+'learning_rate.pdf')
+    # learning_curve = plot_utils.plot_learning_curves(model_hdl,train_test_data,10)
+    # learning_curve.savefig(fig_outputpath+'learning_rate.pdf')
 
 
     y_pred_train = model_hdl.predict(train_test_data[0],False)
     y_pred_test  = model_hdl.predict(train_test_data[2],False)
 
-    plot_utils.plot_precision_recall(train_test_data[1],y_pred_train)
-    plt.savefig(fig_outputpath+'precision_recall_'+SavedTAG+'.pdf',dpi=1000)
+    # plot_utils.plot_precision_recall(train_test_data[1],y_pred_train)
+    # plt.savefig(fig_outputpath+'precision_recall_'+SavedTAG+'.pdf',dpi=1000)
 
 
     temp1 = 'ALICE'
