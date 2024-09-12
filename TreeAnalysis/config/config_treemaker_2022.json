@@ -1,7 +1,7 @@
 {
-    "FilePath": "input/LHC22_pass4.root",
+    "FilePath": "input/LHC22_pass4_PIDv2.root",
     "TreePath": "DF_2271170122563072/O2rtdquadplet",
-    "Tag": "2022",
+    "Tag": "Data_2022_v2",
     "CutName": "dataprefilter",
     "RunType": 2
 }

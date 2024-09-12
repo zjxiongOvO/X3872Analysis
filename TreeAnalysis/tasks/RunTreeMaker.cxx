@@ -2,6 +2,7 @@
 #include "../deps/QuadVarManager.h"
 #include "../deps/CutsLibrary.cxx"
 #include "../deps/json.hpp"
+#include "../deps/HistoAndPlot.h"
 
 using json = nlohmann::json;
 
@@ -40,14 +41,28 @@ void RunSimTreeMakerWithFilter(TTree* tree, string tag, string cutname){
     QuadAnalysisCuts* cut = FindCut(cutname);
     var->CreateTree(outputfileName);
 
+    // histo
+    TObjArray* array_bf = new TObjArray();
+    QuadHistos::DefineHistograms(array_bf);
+
+    TObjArray* array_af = new TObjArray();
+    QuadHistos::DefineHistograms(array_af);
+
     for (int i = 0; i < tree->GetEntries(); i++) {
         tree->GetEntry(i);
         var->FillSim(Sim);
+        QuadHistos::FillHistograms(array_bf, var->value);
         if (!cut->isInCut(var->value)) continue;
+        QuadHistos::FillHistograms(array_af, var->value);
         var->FillToTree();
     }
 
     var->WriteToFile();
+
+    TFile* file = new TFile("output/Analysis.root", "update");
+    QuadHistos::WriteHistograms(array_bf, file, Form("%s_before", tag.c_str()));
+    QuadHistos::WriteHistograms(array_af, file, Form("%s_%s", tag.c_str(), cutname.c_str()));
+    file->Close();
 }
 
 // convert the QuadpletTree to SkimmedTree
@@ -126,4 +141,15 @@ void RunTreeMaker(string configpath) {
     file->Close();
 
     std::cout << "Finished!" << std::endl;
+
+    // TFile* outputfile = new TFile("output/Analysis.root", "read");
+    // TList* list_bf = (TList*)outputfile->Get(Form("%s_before", tag.c_str()));
+    // TList* list_af = (TList*)outputfile->Get(Form("%s_%s", tag.c_str(), cutname.c_str()));
+    // std::vector<TList*> list_before;
+    // list_before.push_back(list_bf);
+    // std::vector<TList*> list_after;
+    // list_after.push_back(list_af);
+    // std::vector<string> ListName;
+    // ListName.push_back(tag);
+    // QuadHistos::DrawEfficiency(list_after, list_before, ListName);
 }

@@ -27,6 +27,8 @@ public :
    Double_t        Eta;
    Double_t        Q;
    Double_t        DeltaR;
+   Double_t        DeltaR1;
+   Double_t        DeltaR2;
    Double_t        kDileptonMass;
    Double_t        kDileptonPt;
    Double_t        kDileptonEta;
@@ -45,6 +47,8 @@ public :
    TBranch        *b_Eta;   //!
    TBranch        *b_Q;   //!
    TBranch        *b_DeltaR;   //!
+   TBranch        *b_DeltaR1;   //!
+   TBranch        *b_DeltaR2;   //!
    TBranch        *b_kDileptonMass;   //!
    TBranch        *b_kDileptonPt;   //!
    TBranch        *b_kDileptonEta;   //!

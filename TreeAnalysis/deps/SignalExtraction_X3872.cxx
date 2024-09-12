@@ -11,31 +11,32 @@
 
 #include "Mtool.h"
 
-// pre-defined functions for signal extraction
-TF1* gkf_global = nullptr;
-TF1* gkf_Psi2S = nullptr;
-TF1* gkf_X3872 = nullptr;
-TF1* gkf_background = nullptr;
 
-void ResetParameters(){
-    // once we fit the global function, we need to reset the parameters of Psi2S, X3872 and background
-    if (gkf_Psi2S != nullptr && gkf_X3872 != nullptr && gkf_background != nullptr) {
-        for (int i = 0; i < gkf_X3872->GetNpar(); i++){
-            gkf_X3872->SetParameter(i, gkf_global->GetParameter(i));
-        }
-        for (int i = 0; i < gkf_Psi2S->GetNpar(); i++){
-            gkf_Psi2S->SetParameter(i, gkf_global->GetParameter(gkf_X3872->GetNpar() + i));
-        }
-        for (int i = 0; i < gkf_background->GetNpar(); i++){
-            gkf_background->SetParameter(i, gkf_global->GetParameter(gkf_X3872->GetNpar() + gkf_Psi2S->GetNpar() + i));
-        }
-    } else {
-        std::cerr << "Error: gkf_Psi2S, gkf_X3872, gkf_background should be set before calling ResetParameters()" << std::endl;
-        return;
-    }
-}
+// void ResetParameters(){
+//     // once we fit the global function, we need to reset the parameters of Psi2S, X3872 and background
+//     if (gkf_Psi2S != nullptr && gkf_X3872 != nullptr && gkf_background != nullptr) {
+//         for (int i = 0; i < gkf_X3872->GetNpar(); i++){
+//             gkf_X3872->SetParameter(i, gkf_global->GetParameter(i));
+//         }
+//         for (int i = 0; i < gkf_Psi2S->GetNpar(); i++){
+//             gkf_Psi2S->SetParameter(i, gkf_global->GetParameter(gkf_X3872->GetNpar() + i));
+//         }
+//         for (int i = 0; i < gkf_background->GetNpar(); i++){
+//             gkf_background->SetParameter(i, gkf_global->GetParameter(gkf_X3872->GetNpar() + gkf_Psi2S->GetNpar() + i));
+//         }
+//     } else {
+//         std::cerr << "Error: gkf_Psi2S, gkf_X3872, gkf_background should be set before calling ResetParameters()" << std::endl;
+//         return;
+//     }
+// }
 
 void SignalExtraction_X3872(TH1F* hCandidate, double massRangeLow, double massRangeHigh, string outputpath){
+
+    // pre-defined functions for signal extraction
+    TF1* gkf_global = nullptr;
+    TF1* gkf_Psi2S = nullptr;
+    TF1* gkf_X3872 = nullptr;
+    TF1* gkf_background = nullptr;
     // Initialize
     gkf_Psi2S = new TF1("fPsi2S", "gaus", 0, 15);
     gkf_X3872 = new TF1("fX3872", "gaus", 0, 15);
@@ -94,7 +95,22 @@ void SignalExtraction_X3872(TH1F* hCandidate, double massRangeLow, double massRa
     TMatrixDSym covBackground = covGlobal.GetSub(gkf_X3872->GetNpar() + gkf_Psi2S->GetNpar(), gkf_X3872->GetNpar() + gkf_Psi2S->GetNpar() + gkf_background->GetNpar() - 1, gkf_X3872->GetNpar() + gkf_Psi2S->GetNpar(), gkf_X3872->GetNpar() + gkf_Psi2S->GetNpar() + gkf_background->GetNpar() - 1);
 
     // reset parameters
-    ResetParameters();
+    // ResetParameters();
+    // once we fit the global function, we need to reset the parameters of Psi2S, X3872 and background
+    if (gkf_Psi2S != nullptr && gkf_X3872 != nullptr && gkf_background != nullptr) {
+        for (int i = 0; i < gkf_X3872->GetNpar(); i++){
+            gkf_X3872->SetParameter(i, gkf_global->GetParameter(i));
+        }
+        for (int i = 0; i < gkf_Psi2S->GetNpar(); i++){
+            gkf_Psi2S->SetParameter(i, gkf_global->GetParameter(gkf_X3872->GetNpar() + i));
+        }
+        for (int i = 0; i < gkf_background->GetNpar(); i++){
+            gkf_background->SetParameter(i, gkf_global->GetParameter(gkf_X3872->GetNpar() + gkf_Psi2S->GetNpar() + i));
+        }
+    } else {
+        std::cerr << "Error: gkf_Psi2S, gkf_X3872, gkf_background should be set before calling ResetParameters()" << std::endl;
+        return;
+    }
 
     // calculate the variables
     double meanX3872 = gkf_X3872->GetParameter(1);
@@ -155,22 +171,4 @@ void SignalExtraction_X3872(TH1F* hCandidate, double massRangeLow, double massRa
     MTool::SetLatex(0.18, 0.35, Form("Significance_{X(3872)} = %.2f", significance_X3872), 42, 0.04, 1);
     MTool::SetLatex(0.18, 0.30, Form("Significance_{#Psi(2S)} = %.2f", significance_Psi2S), 42, 0.04, 1);
     temp->SaveAs(outputpath.c_str());
-
-    // temp->Clear();
-    // TH1F* hSignal = (TH1F*)hCandidate->Clone("hSignal");
-    // // remove the background
-    // for (int i = 1; i <= hSignal->GetNbinsX(); i++){
-    //     double X = hSignal->GetBinCenter(i);
-    //     double Y = hSignal->GetBinContent(i);
-    //     double background = gkf_background->Eval(X);
-    //     hSignal->SetBinContent(i, Y - background);
-    // }
-    // hSignal->Draw();
-    // MTool::StandardSet(hSignal, "#it{m}_{J/#psi#pi#pi} (GeV/#it{c}^{2})", hSignal->GetYaxis()->GetTitle());
-    // MTool::SetMarkerLine(hSignal, 1, 24, 1, 1, 1);
-    // hSignal->GetXaxis()->SetNdivisions(505);
-    // hSignal->GetYaxis()->SetRangeUser(hSignal->GetMinimum(), hSignal->GetMaximum()*1.2);
-    // gkf_X3872->Draw("same");
-    // gkf_Psi2S->Draw("same");
-    // temp->SaveAs("output/SignalExtraction_X3872_Signal.pdf");
 }

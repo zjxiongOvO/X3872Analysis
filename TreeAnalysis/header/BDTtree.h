@@ -23,10 +23,12 @@ public :
 
    // Declaration of leaf types
    Double_t        Mass;
+   Double_t        Pt;
    Float_t         model_output;
 
    // List of branches
    TBranch        *b_Mass;   //!
+   TBranch        *b_Pt;   //!
    TBranch        *b_model_output;   //!
 
    BDTtree(TTree *tree=0);
@@ -100,6 +102,7 @@ void BDTtree::Init(TTree *tree)
    fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("Mass", &Mass, &b_Mass);
+   fChain->SetBranchAddress("Pt", &Pt, &b_Pt);
    fChain->SetBranchAddress("model_output", &model_output, &b_model_output);
    Notify();
 }

@@ -29,6 +29,7 @@ void RunAnalysis(string configpath)
 {
     // init 
     std::vector<string> dataPathList;
+    std::vector<string> SameSidePathList;
     std::vector<string> dataNameList;
     std::vector<string> simPathList;
     std::vector<string> simNameList;
@@ -36,10 +37,12 @@ void RunAnalysis(string configpath)
     bool NeedSaveTree = false;
     string SaveTreePath = "";
     bool NeedUpdateFile = false;
+    bool NeedSameSide = false;
 
     try {
         json config = readConfig(configpath);
         dataPathList = config["DataPath"].get<std::vector<std::string>>();
+        SameSidePathList = config["SameSidePath"].get<std::vector<std::string>>();
         dataNameList = config["DataName"].get<std::vector<std::string>>();
         simPathList = config["SimPath"].get<std::vector<std::string>>();
         simNameList = config["SimName"].get<std::vector<std::string>>();
@@ -47,6 +50,7 @@ void RunAnalysis(string configpath)
         NeedSaveTree = config["NeedSaveTree"].get<bool>();
         SaveTreePath = config["SaveTreePath"].get<std::string>();
         NeedUpdateFile = config["NeedUpdateFile"].get<bool>();
+        NeedSameSide = config["NeedSameSide"].get<bool>();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return;
@@ -79,6 +83,32 @@ void RunAnalysis(string configpath)
             }
             QuadHistos::WriteHistograms(array, myfile, Form("%s_%s", dataNameList[i].c_str(), CutNameList[j].c_str()));
             array->Clear("C");
+        }
+    }
+
+    // read SameSide bkg
+    if (NeedSameSide == true) {
+        for (int i = 0; i < SameSidePathList.size(); i++){
+            TFile* file = new TFile(SameSidePathList[i].c_str());
+            SkimmedTree* tree = new SkimmedTree((TTree*)file->Get("tree"));
+            QuadVarManager* var = new QuadVarManager();
+            
+            for (int j = 0; j < CutNameList.size(); j++){
+                if (NeedSaveTree) var->CreateTree(Form("%s/%s_%s.root", SaveTreePath.c_str(), dataNameList[i].c_str(), CutNameList[j].c_str()));
+                QuadAnalysisCuts* cut = FindCut(CutNameList[j]);
+                TObjArray* array = new TObjArray();
+                QuadHistos::DefineHistograms(array);
+                for (int k = 0; k < tree->fChain->GetEntries(); k++) {
+                    tree->fChain->GetEntry(k);
+                    var->FillSkimmedTree(tree);
+                    if (cut->isInCut(var->value)){
+                        QuadHistos::FillHistograms(array, var->value);
+                        if (NeedSaveTree) var->FillToTree();
+                    }
+                }
+                QuadHistos::WriteHistograms(array, myfile, Form("%s_%s_bkg", dataNameList[i].c_str(), CutNameList[j].c_str()));
+                array->Clear("C");
+            }
         }
     }
 

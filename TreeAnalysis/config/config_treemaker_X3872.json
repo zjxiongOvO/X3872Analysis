@@ -1,7 +1,7 @@
 {
-    "FilePath": "input/X3872_JpsiRho_Swave.root",
+    "FilePath": "input/X3872_JpsiRho_Swave_reweight.root",
     "TreePath": "tree",
     "Tag": "X3872",
-    "CutName": "",
-    "RunType": 0
+    "CutName": "TunedAcc",
+    "RunType": 1
 }

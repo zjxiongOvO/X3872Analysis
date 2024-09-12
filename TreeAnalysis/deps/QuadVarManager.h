@@ -100,37 +100,6 @@ public:
     void FillTrackPtResolution(EvtgenSim* sim, int i, TH2F* hTrackPtResolution_Pt);
 };
 
-// QuadVarManager::QuadVarManager(string filename) {
-//     double* value_temp = new double[Variables::kNall];
-//     value = value_temp;
-//     // this->value = new double[Variables::kNall];
-//     for (int i = 0; i < Variables::kNall; i++) {
-//         value[i] = -999;
-//     }
-//     file = new TFile(filename.c_str(), "recreate");
-//     // tree initialization
-//     tree = new TTree("tree", "tree");
-//     tree->Branch("Mass", &value[Variables::kMass], "Mass/D");
-//     tree->Branch("Pt", &value[Variables::kPt], "Pt/D");
-//     tree->Branch("Eta", &value[Variables::kEta], "Eta/D");
-//     // tree->Branch("Phi", &value[Variables::kPhi], "Phi/D");
-//     // tree->Branch("kCosDileptonDiTracks", &value[Variables::kCosDileptonDiTracks], "kCosDileptonDiTracks/D");
-//     tree->Branch("Q", &value[Variables::kQ], "Q/D");
-//     tree->Branch("DeltaR", &value[Variables::kDeltaR], "DeltaR/D");
-//     tree->Branch("kDileptonMass", &value[Variables::kDileptonMass], "kDileptonMass/D");
-//     tree->Branch("kDileptonPt", &value[Variables::kDileptonPt], "kDileptonPt/D");
-//     tree->Branch("kDileptonEta", &value[Variables::kDileptonEta], "kDileptonEta/D");
-//     // tree->Branch("fDileptonPhi", &value[Variables::kPhi], "fDileptonPhi/D");
-//     tree->Branch("fDileptonSign", &value[Variables::kDileptonSign], "fDileptonSign/D");
-//     tree->Branch("fDiTracksMass", &value[Variables::kDihardonMass], "fDiTracksMass/D");
-//     tree->Branch("fDiTracksPt", &value[Variables::kDihardonPt], "fDiTracksPt/D");
-//     tree->Branch("fDiTracksSign", &value[Variables::kDihardonSign], "fDiTracksSign/D");
-//     tree->Branch("fTrackPt1", &value[Variables::kPionPt1], "fTrackPt1/D");
-//     tree->Branch("fTrackPt2", &value[Variables::kPionPt2], "fTrackPt2/D");
-//     tree->Branch("fkDeltaPhiPiPi", &value[Variables::kDeltaPhi], "fkDeltaPhiPiPi/D");
-//     tree->Branch("fkDeltaEtaPiPi", &value[Variables::kDeltaEta], "fkDeltaEtaPiPi/D");
-// }
-
 QuadVarManager::QuadVarManager() {
     double* value_temp = new double[Variables::kNall];
     value = value_temp;
@@ -217,7 +186,11 @@ void QuadVarManager::FillData(Quadplet* data) {
     ROOT::Math::PtEtaPhiMVector Pionplus(data->fTrackPt1, data->fTrackEta1, data->fTrackPhi1, 0.13957);
     ROOT::Math::PtEtaPhiMVector Pionminus(data->fTrackPt2, data->fTrackEta2, data->fTrackPhi2, 0.13957);
     ROOT::Math::PtEtaPhiMVector DiPion = Pionplus + Pionminus;
-    value[kDeltaPhi] = Pionplus.Phi() - Pionminus.Phi();
+    double deltaPhi = Pionplus.Phi() - Pionminus.Phi();
+    if (deltaPhi > TMath::Pi()) deltaPhi -= 2*TMath::Pi();
+    if (deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
+    value[kDeltaPhi] = deltaPhi;
+    // value[kDeltaPhi] = Pionplus.Phi() - Pionminus.Phi();
     value[kDeltaEta] = Pionplus.Eta() - Pionminus.Eta();
     value[kDihardonEta] = DiPion.Eta();
 }
@@ -229,6 +202,8 @@ void QuadVarManager::FillSkimmedTree(SkimmedTree* skimmedTree) {
     value[kEta] = skimmedTree->Eta;
     value[kQ] = skimmedTree->Q;
     value[kDeltaR] = skimmedTree->DeltaR;
+    value[kDeltaR1] = skimmedTree->DeltaR1;
+    value[kDeltaR2] = skimmedTree->DeltaR2;
     value[kDileptonMass] = skimmedTree->kDileptonMass;
     value[kDileptonPt] = skimmedTree->kDileptonPt;
     value[kDileptonEta] = skimmedTree->kDileptonEta;
@@ -245,6 +220,7 @@ void QuadVarManager::FillSkimmedTree(SkimmedTree* skimmedTree) {
 void QuadVarManager::FillBDTtree(BDTtree* bdtTree) {
     // the structure of the BDT tree should be the same as the tree we defined in the constructor
     value[kMass] = bdtTree->Mass;
+    value[kPt] = bdtTree->Pt;
     value[kBDT] = bdtTree->model_output;
 }
 
@@ -261,6 +237,8 @@ void QuadVarManager::CreateTree(string filename){
     // tree->Branch("kCosDileptonDiTracks", &value[Variables::kCosDileptonDiTracks], "kCosDileptonDiTracks/D");
     tree->Branch("Q", &value[Variables::kQ], "Q/D");
     tree->Branch("DeltaR", &value[Variables::kDeltaR], "DeltaR/D");
+    tree->Branch("DeltaR1", &value[Variables::kDeltaR1], "DeltaR1/D");
+    tree->Branch("DeltaR2", &value[Variables::kDeltaR2], "DeltaR2/D");
     tree->Branch("kDileptonMass", &value[Variables::kDileptonMass], "kDileptonMass/D");
     tree->Branch("kDileptonPt", &value[Variables::kDileptonPt], "kDileptonPt/D");
     tree->Branch("kDileptonEta", &value[Variables::kDileptonEta], "kDileptonEta/D");

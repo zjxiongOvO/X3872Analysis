@@ -1,7 +1,7 @@
 #!/bin/bash
 
 print_help() {
-    echo "Usage: $0 [--skim] -config <config.json>"
+    echo "Usage: $0 [--skim] -config <config.json> -onlyRead"
     echo "          [--treemaker] -config <config.json>"
     echo "          [--scan] -i <input.root> -start <start> -end <end> -Nstep <step>"
 }
@@ -22,6 +22,7 @@ Nstep=1
 skim=false
 scan=false
 treemaker=false
+onlyRead=false
 
 if [[ $# -eq 0 ]]; then
     print_help
@@ -47,6 +48,10 @@ while [[ $# -gt 0 ]]; do
         -config)
             shift
             configpath="$1"
+            shift
+            ;;
+        -onlyRead)
+            onlyRead=true
             shift
             ;;
         -i)
@@ -96,7 +101,9 @@ if [ "$skim" = true ]; then
         echo "Error: config path is not set"
         exit 1
     fi
-    root -l -b -q "$X3872PATH/TreeAnalysis/tasks/RunAnalysis.cxx(\"$configpath\")"
+    if [ "$onlyRead" = false ]; then
+        root -l -b -q "$X3872PATH/TreeAnalysis/tasks/RunAnalysis.cxx(\"$configpath\")"
+    fi
     root -l -b -q "$X3872PATH/TreeAnalysis/tasks/DrawAnalysisResults.cxx(\"$configpath\")"
 fi
 

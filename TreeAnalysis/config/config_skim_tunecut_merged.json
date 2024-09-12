@@ -1,0 +1,15 @@
+{
+    "DataPath": ["SkimmedTree/Data_v2_dataprefilter.root"],
+    "SameSidePath": ["SkimmedTree/Data_PIDv2_dataprefilter_sameside.root"],
+    "DataName": ["merged"],
+    "SimPath": [],
+    "SimName": [],
+    "CutNamebf": ["Scan0","Scan1","Scan2","Scan3","Scan4","Scan5","Scan6","Scan7","Scan8","Scan9"],
+    "CutNamebf4": ["ScanX0","ScanX1","ScanX2","ScanX3","ScanX4","ScanX5","ScanX6","ScanX7","ScanX8","ScanX9","ScanX10","ScanX11","ScanX12","ScanX13","ScanX14","ScanX15","ScanX16"],
+    "CutNamebf3": ["ScanX4","ScanX9","ScanX10","ScanX11","ScanX12","ScanX13","ScanX14","ScanX15","ScanX16"],
+    "CutName": ["FinaltuneX3872"],
+    "SaveTreePath": "SkimmedTree/",
+    "NeedSaveTree": false,
+    "NeedUpdateFile": true,
+    "NeedSameSide": true
+}

@@ -1,0 +1,10 @@
+{
+    "DataPath": ["SkimmedTree/Data_2022_v2_dataprefilter.root","SkimmedTree/Data_2023_v2_dataprefilter.root","SkimmedTree/Data_2024_v2_dataprefilter.root","SkimmedTree/Data_v2_dataprefilter.root"],
+    "DataName": ["2022","2023","2024","merged"],
+    "SimPath": [],
+    "SimName": [],
+    "CutName": ["ImprovedCut1"],
+    "SaveTreePath": "SkimmedTree/",
+    "NeedSaveTree": false,
+    "NeedUpdateFile": true
+}

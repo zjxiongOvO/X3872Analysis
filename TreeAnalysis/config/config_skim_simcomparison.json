@@ -1,0 +1,10 @@
+{
+    "DataPath": [],
+    "DataName": [],
+    "SimPath": ["SkimmedTree/X3872_JpsiRho_Swave.root"],
+    "SimName": ["JpsiRho0"],
+    "CutName": ["BasicAcc"],
+    "SaveTreePath": "SkimmedTree/",
+    "NeedSaveTree": false,
+    "NeedUpdateFile": false
+}
