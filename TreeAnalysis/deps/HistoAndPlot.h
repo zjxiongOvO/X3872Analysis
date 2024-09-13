@@ -4,19 +4,13 @@
 
 enum histoname{
     hQ,
-    hDeltaR1,
-    hDeltaR2,
-    hDeltaR,
-    hCosMotherAndDaughter_CMS,
     hDeltaPhi_Pt,
     hDeltaEta_Pt,
     hDeltaR_Pt,
     hDipionsMass_Pt,
     hQ_Pt,
     hDipionsMass_DeltaR,
-    hDipionsMass,
     hPt,
-    hMassX3872,
     hMassPsi2S_Pt,
     hMass_Pt,
 };
@@ -26,14 +20,6 @@ namespace QuadHistos{
         // define histograms
         TH1F* h_Q = new TH1F("h_Q", "Q", 100, 0, 1);
         array->AddAt(h_Q, hQ);
-        TH1F* h_DeltaR1 = new TH1F("h_DeltaR1", "DeltaR1", 600, 0, sqrt(4 + pow(TMath::Pi(), 2)));
-        array->AddAt(h_DeltaR1, hDeltaR1);
-        TH1F* h_DeltaR2 = new TH1F("h_DeltaR2", "DeltaR2", 600, 0, sqrt(4 + pow(TMath::Pi(), 2)));
-        array->AddAt(h_DeltaR2, hDeltaR2);
-        TH1F* h_DeltaR = new TH1F("h_DeltaR", "DeltaR", 600, 0, sqrt(4 + pow(TMath::Pi(), 2)));
-        array->AddAt(h_DeltaR, hDeltaR);
-        TH1F* h_CosMotherAndDaughter_CMS = new TH1F("h_CosMotherAndDaughter_CMS", "CosMotherAndDaughter_CMS", 100, -1, 1);
-        array->AddAt(h_CosMotherAndDaughter_CMS, hCosMotherAndDaughter_CMS);
         TH2F* h_DeltaPhi_Pt = new TH2F("h_DeltaPhi_Pt", "DeltaPhi_Pt", 40, 0, 20, 100, 0, TMath::Pi());
         array->AddAt(h_DeltaPhi_Pt, hDeltaPhi_Pt);
         TH2F* h_DeltaEta_Pt = new TH2F("h_DeltaEta_Pt", "DeltaEta_Pt", 40, 0, 20, 100, 0, 2);
@@ -46,14 +32,9 @@ namespace QuadHistos{
         array->AddAt(h_Q_Pt, hQ_Pt);
         TH2F* h_DipionsMass_DeltaR = new TH2F("h_DipionsMass_DeltaR", "DipionsMass_DeltaR", 600, 0, sqrt(4 + pow(TMath::Pi(), 2)), 100, 0, 1.0);
         array->AddAt(h_DipionsMass_DeltaR, hDipionsMass_DeltaR);
-        TH1F* h_DipionsMass = new TH1F("h_DipionsMass", "DipionsMass", 100, 0, 1.0);
-        array->AddAt(h_DipionsMass, hDipionsMass);
         TH1F* hPt = new TH1F("hPt", "Pt", 20, 0, 20);
         hPt->Sumw2();
         array->AddAt(hPt, histoname::hPt);
-        TH1F* hMassX3872 = new TH1F("hMassX3872", "MassX3872", 400, 3.6, 4.0);
-        hMassX3872->Sumw2();
-        array->AddAt(hMassX3872, histoname::hMassX3872);
         TH2F* hMassPsi2S_Pt = new TH2F("hMassPsi2S_Pt", "MassPsi2S_Pt", 40, 0, 40, 50, 3.6, 3.8);
         hMassPsi2S_Pt->Sumw2();
         array->AddAt(hMassPsi2S_Pt, histoname::hMassPsi2S_Pt);
@@ -65,19 +46,13 @@ namespace QuadHistos{
     //---------------------------------------------------------------------------------------------------
     void FillHistograms(TObjArray* array, double* values){
         ((TH1F*)array->At(hQ))->Fill(values[QuadVarManager::Variables::kQ]);
-        ((TH1F*)array->At(hDeltaR1))->Fill(values[QuadVarManager::Variables::kDeltaR1]);
-        ((TH1F*)array->At(hDeltaR2))->Fill(values[QuadVarManager::Variables::kDeltaR2]);
-        ((TH1F*)array->At(hDeltaR))->Fill(values[QuadVarManager::Variables::kDeltaR]);
-        ((TH1F*)array->At(hCosMotherAndDaughter_CMS))->Fill(values[QuadVarManager::Variables::kCosDileptonDiTracks]);
         ((TH2F*)array->At(hDeltaPhi_Pt))->Fill(values[QuadVarManager::Variables::kPt], values[QuadVarManager::Variables::kDeltaPhi]);
         ((TH2F*)array->At(hDeltaEta_Pt))->Fill(values[QuadVarManager::Variables::kPt], values[QuadVarManager::Variables::kDeltaEta]);
         ((TH2F*)array->At(hDeltaR_Pt))->Fill(values[QuadVarManager::Variables::kPt], values[QuadVarManager::Variables::kDeltaR]);
         ((TH2F*)array->At(hDipionsMass_Pt))->Fill(values[QuadVarManager::Variables::kPt], values[QuadVarManager::Variables::kDihardonMass]);
         ((TH2F*)array->At(hQ_Pt))->Fill(values[QuadVarManager::Variables::kPt], values[QuadVarManager::Variables::kQ]);
         ((TH2F*)array->At(hDipionsMass_DeltaR))->Fill(values[QuadVarManager::Variables::kDeltaR], values[QuadVarManager::Variables::kDihardonMass]);
-        ((TH1F*)array->At(hDipionsMass))->Fill(values[QuadVarManager::Variables::kDihardonMass]);
         ((TH1F*)array->At(hPt))->Fill(values[QuadVarManager::Variables::kPt]);
-        ((TH1F*)array->At(hMassX3872))->Fill(values[QuadVarManager::Variables::kMass]);
         ((TH2F*)array->At(hMassPsi2S_Pt))->Fill(values[QuadVarManager::Variables::kPt], values[QuadVarManager::Variables::kMass]);
         ((TH2F*)array->At(hMass_Pt))->Fill(values[QuadVarManager::Variables::kPt], values[QuadVarManager::Variables::kMass]);
     }
@@ -86,19 +61,13 @@ namespace QuadHistos{
     void WriteHistograms(TObjArray* array, TFile* file, char* ListName){
         file->cd();
         MTool::SaveHistogramInTList<TH1F>(file, ListName, (TH1F*)array->At(hQ));
-        MTool::SaveHistogramInTList<TH1F>(file, ListName, (TH1F*)array->At(hDeltaR1));
-        MTool::SaveHistogramInTList<TH1F>(file, ListName, (TH1F*)array->At(hDeltaR2));
-        MTool::SaveHistogramInTList<TH1F>(file, ListName, (TH1F*)array->At(hDeltaR));
-        MTool::SaveHistogramInTList<TH1F>(file, ListName, (TH1F*)array->At(hCosMotherAndDaughter_CMS));
         MTool::SaveHistogramInTList<TH2F>(file, ListName, (TH2F*)array->At(hDeltaPhi_Pt));
         MTool::SaveHistogramInTList<TH2F>(file, ListName, (TH2F*)array->At(hDeltaEta_Pt));
         MTool::SaveHistogramInTList<TH2F>(file, ListName, (TH2F*)array->At(hDeltaR_Pt));
         MTool::SaveHistogramInTList<TH2F>(file, ListName, (TH2F*)array->At(hDipionsMass_Pt));
         MTool::SaveHistogramInTList<TH2F>(file, ListName, (TH2F*)array->At(hQ_Pt));
         MTool::SaveHistogramInTList<TH2F>(file, ListName, (TH2F*)array->At(hDipionsMass_DeltaR));
-        MTool::SaveHistogramInTList<TH1F>(file, ListName, (TH1F*)array->At(hDipionsMass));
         MTool::SaveHistogramInTList<TH1F>(file, ListName, (TH1F*)array->At(hPt));
-        MTool::SaveHistogramInTList<TH1F>(file, ListName, (TH1F*)array->At(hMassX3872));
         MTool::SaveHistogramInTList<TH2F>(file, ListName, (TH2F*)array->At(hMassPsi2S_Pt));
         MTool::SaveHistogramInTList<TH2F>(file, ListName, (TH2F*)array->At(hMass_Pt));
     }

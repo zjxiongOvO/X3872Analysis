@@ -1,7 +1,0 @@
-{
-    "FilePath": "input/Psi2S_VVPIPI_reweight.root",
-    "TreePath": "tree",
-    "Tag": "Psi2S",
-    "CutName": "BasicAcc",
-    "RunType": 1
-}

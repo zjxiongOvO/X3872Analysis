@@ -1,0 +1,36 @@
+{
+    "GlobalSetting": {
+        "AnalysisName": "Debug"
+    },
+    "SkimmedTreeProduction": {
+        "QuadletFilePath": "input/LHC_merged_PIDv2.root",
+        "QuadletTreeName": "DF_2271170122563072/O2rtdquadplet",
+        "X3872ToyMCFilePath": "input/X3872_JpsiRho_Swave_reweight.root",
+        "X3872ToyMCTreeName": "tree",
+        "Psi2SToyMCFilePath": "input/Psi2S_VVPIPI_reweight.root",
+        "Psi2SToyMCTreeName": "tree",
+        "PreselCutName": "dataprefilter",
+        "SpecialToyMCCutName": "BasicAcc"
+    },
+    "CutGCreater" :{
+        "CutGFilePath": "CutLibrary/CutG.root",
+        "CutBasedOn": "BasicAcc_dataprefilter",
+        "CutGPercents": [0.9, 0.8, 0.7, 0.6]
+    },
+    "Analysis": {
+        "DataPath": "SkimmedTree/Data_dataprefilter.root", 
+        "SameSidePath": "SkimmedTree/Data_dataprefilter_sameside.root",
+        "X3872ToyMCFilePath": "SkimmedTree/X3872_BasicAcc_dataprefilter.root",
+        "Psi2SToyMCFilePath": "SkimmedTree/Psi2S_BasicAcc_dataprefilter.root",
+        "AnalysisCutsName": ["FinaltuneX3872"],
+        "NeedSaveTree": false
+    },
+    "SignalExtraction": {
+        "AnalysisCutsName": ["FinaltuneX3872"],
+        "Ptbins": [0, 4, 35],
+        "BinWidth": 0.004,
+        "MassRangeX3872": [3.828, 3.908],
+        "MassRangePsi2S": [3.640, 3.720]
+    }
+
+}

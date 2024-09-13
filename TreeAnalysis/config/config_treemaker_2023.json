@@ -1,7 +1,0 @@
-{
-    "FilePath": "input/LHC23_pass4_PIDv2.root",
-    "TreePath": "DF_2298103926612928/O2rtdquadplet",
-    "Tag": "Data_2023_v2",
-    "CutName": "dataprefilter",
-    "RunType": 2
-}

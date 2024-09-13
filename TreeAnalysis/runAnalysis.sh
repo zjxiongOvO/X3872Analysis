@@ -1,9 +1,7 @@
 #!/bin/bash
 
 print_help() {
-    echo "Usage: $0 [--skim] -config <config.json> -onlyRead"
-    echo "          [--treemaker] -config <config.json>"
-    echo "          [--scan] -i <input.root> -start <start> -end <end> -Nstep <step>"
+    echo "Usage: $0 [--analysis] [--treemaker] [--eff] [--CutG] [--SigExt] -config <config.json>"
 }
 
 # check if the $X3872PATH is set
@@ -13,16 +11,13 @@ if [ -z "$X3872PATH" ]; then
 fi
 
 configpath=""
-inputpath=""
-start=0
-end=1
-Nstep=1
 
 # options
-skim=false
-scan=false
 treemaker=false
-onlyRead=false
+analysis=false
+eff=false
+CutG=false
+SigExt=false
 
 if [[ $# -eq 0 ]]; then
     print_help
@@ -33,8 +28,8 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-        --skim)
-            skim=true
+        --analysis)
+            analysis=true
             shift
             ;;
         --scan)
@@ -45,33 +40,21 @@ while [[ $# -gt 0 ]]; do
             treemaker=true
             shift
             ;;
+        --eff)
+            eff=true
+            shift
+            ;;
+        --CutG)
+            CutG=true
+            shift
+            ;;
+        --SigExt)
+            SigExt=true
+            shift
+            ;;
         -config)
             shift
             configpath="$1"
-            shift
-            ;;
-        -onlyRead)
-            onlyRead=true
-            shift
-            ;;
-        -i)
-            shift
-            inputpath="$1"
-            shift
-            ;;
-        -start)
-            shift
-            start="$1"
-            shift
-            ;;
-        -end)
-            shift
-            end="$1"
-            shift
-            ;;
-        -Nstep)
-            shift
-            Nstep="$1"
             shift
             ;;
         -h|--help)
@@ -86,7 +69,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# run the tree maker
+# run tree-maker
 if [ "$treemaker" = true ]; then
     if [ -z "$configpath" ]; then
         echo "Error: config path is not set"
@@ -96,22 +79,44 @@ if [ "$treemaker" = true ]; then
 fi
 
 # run Analysis
-if [ "$skim" = true ]; then
+if [ "$analysis" = true ]; then
     if [ -z "$configpath" ]; then
         echo "Error: config path is not set"
         exit 1
     fi
-    if [ "$onlyRead" = false ]; then
-        root -l -b -q "$X3872PATH/TreeAnalysis/tasks/RunAnalysis.cxx(\"$configpath\")"
-    fi
-    root -l -b -q "$X3872PATH/TreeAnalysis/tasks/DrawAnalysisResults.cxx(\"$configpath\")"
+    root -l -b -q "$X3872PATH/TreeAnalysis/tasks/RunAnalysis.cxx(\"$configpath\")"
 fi
 
-# run BDT scan
-if [ "$scan" = true ]; then
-    if [ -z "$inputpath" ]; then
-        echo "Error: input path is not set"
+# run efficiency
+if [ "$eff" = true ]; then
+    if [ -z "$configpath" ]; then
+        echo "Error: config path is not set"
         exit 1
     fi
-    root -l -b -q "$X3872PATH/TreeAnalysis/tasks/ScanBDT.cxx(\"$inputpath\", $start, $end, $Nstep)"
+    root -l -b -q "$X3872PATH/TreeAnalysis/tasks/CalculateEff.cxx(\"$configpath\")"
 fi
+
+if [ "$CutG" = true ]; then
+    if [ -z "$configpath" ]; then
+        echo "Error: config path is not set"
+        exit 1
+    fi
+    root -l -b -q "$X3872PATH/TreeAnalysis/tasks/CutGCreater.cxx(\"$configpath\")"
+fi
+
+if [ "$SigExt" = true ]; then
+    if [ -z "$configpath" ]; then
+        echo "Error: config path is not set"
+        exit 1
+    fi
+    root -l -b -q "$X3872PATH/TreeAnalysis/tasks/RunSignalExtraction.cxx(\"$configpath\")"
+fi
+
+# # run BDT scan
+# if [ "$scan" = true ]; then
+#     if [ -z "$inputpath" ]; then
+#         echo "Error: input path is not set"
+#         exit 1
+#     fi
+#     root -l -b -q "$X3872PATH/TreeAnalysis/tasks/ScanBDT.cxx(\"$inputpath\", $start, $end, $Nstep)"
+# fi

@@ -1,7 +1,0 @@
-{
-    "FilePath": "input/LHC_merged_PIDv2.root",
-    "TreePath": "DF_2271170122563072/O2rtdquadplet",
-    "Tag": "Data_PIDv2",
-    "CutName": "dataprefilter",
-    "RunType": 3
-}

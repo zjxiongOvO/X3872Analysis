@@ -1,7 +1,4 @@
 // this code is for applying the cut on the data and simulation,
-// calculate the Acceptance,
-// show the QA plots (distribution and comparison),
-// Run Signal Extraction
 // and Create the skimmed tree for the further analysis.
 
 #include "../deps/HistoAndPlot.h"
@@ -28,122 +25,125 @@ json readConfig(const std::string& configFilePath) {
 void RunAnalysis(string configpath)
 {
     // init 
-    std::vector<string> dataPathList;
-    std::vector<string> SameSidePathList;
-    std::vector<string> dataNameList;
-    std::vector<string> simPathList;
-    std::vector<string> simNameList;
-    std::vector<string> CutNameList;
+    string AnalysisName;
+    string dataPath;
+    string SameSidePath;
+    string X3872ToyMCFilePath;
+    string Psi2SToyMCFilePath;
+    std::vector<string> AnalysisCutsName;
     bool NeedSaveTree = false;
-    string SaveTreePath = "";
-    bool NeedUpdateFile = false;
-    bool NeedSameSide = false;
+    string commonpath;
 
     try {
         json config = readConfig(configpath);
-        dataPathList = config["DataPath"].get<std::vector<std::string>>();
-        SameSidePathList = config["SameSidePath"].get<std::vector<std::string>>();
-        dataNameList = config["DataName"].get<std::vector<std::string>>();
-        simPathList = config["SimPath"].get<std::vector<std::string>>();
-        simNameList = config["SimName"].get<std::vector<std::string>>();
-        CutNameList = config["CutName"].get<std::vector<std::string>>();
-        NeedSaveTree = config["NeedSaveTree"].get<bool>();
-        SaveTreePath = config["SaveTreePath"].get<std::string>();
-        NeedUpdateFile = config["NeedUpdateFile"].get<bool>();
-        NeedSameSide = config["NeedSameSide"].get<bool>();
+        AnalysisName = config["GlobalSetting"]["AnalysisName"];
+        dataPath = config["Analysis"]["DataPath"];
+        SameSidePath = config["Analysis"]["SameSidePath"];
+        X3872ToyMCFilePath = config["Analysis"]["X3872ToyMCFilePath"];
+        Psi2SToyMCFilePath = config["Analysis"]["Psi2SToyMCFilePath"];
+        AnalysisCutsName = config["Analysis"]["AnalysisCutsName"].get<std::vector<string>>();
+        NeedSaveTree = config["Analysis"]["NeedSaveTree"].get<bool>();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return;
     }
 
-    TFile* myfile;
-    if (NeedUpdateFile) myfile = new TFile("output/Analysis.root", "update");
-    else myfile = new TFile("output/Analysis.root", "recreate");
+    commonpath = Form("output/%s", AnalysisName.c_str());
 
-    system(Form("mkdir -p %s", SaveTreePath.c_str()));
+    TFile* myfile = new TFile(Form("%s/Analysis.root", commonpath.c_str()), "update");
 
     // read data
-    for (int i = 0; i < dataPathList.size(); i++){
-        TFile* file = new TFile(dataPathList[i].c_str());
-        SkimmedTree* tree = new SkimmedTree((TTree*)file->Get("tree"));
-        QuadVarManager* var = new QuadVarManager();
-        
-        for (int j = 0; j < CutNameList.size(); j++){
-            if (NeedSaveTree) var->CreateTree(Form("%s/%s_%s.root", SaveTreePath.c_str(), dataNameList[i].c_str(), CutNameList[j].c_str()));
-            QuadAnalysisCuts* cut = FindCut(CutNameList[j]);
-            TObjArray* array = new TObjArray();
-            QuadHistos::DefineHistograms(array);
-            for (int k = 0; k < tree->fChain->GetEntries(); k++) {
-                tree->fChain->GetEntry(k);
-                var->FillSkimmedTree(tree);
-                if (cut->isInCut(var->value)){
-                    QuadHistos::FillHistograms(array, var->value);
-                    if (NeedSaveTree) var->FillToTree();
-                }
+    TFile* datafile = new TFile(Form("%s/%s", commonpath.c_str(), dataPath.c_str()));
+    SkimmedTree* datatree = new SkimmedTree((TTree*)datafile->Get("tree"));
+    QuadVarManager* datavar = new QuadVarManager();
+
+    for (int i = 0; i < AnalysisCutsName.size(); i++){
+        if (NeedSaveTree) datavar->CreateTree(Form("%s/SkimmedTree/Data_%s.root", commonpath.c_str(), AnalysisCutsName[i].c_str()));
+        QuadAnalysisCuts* cut = FindCut(AnalysisCutsName[i]);
+        TObjArray* array = new TObjArray();
+        QuadHistos::DefineHistograms(array);
+        for (int k = 0; k < datatree->fChain->GetEntries(); k++) {
+            datatree->fChain->GetEntry(k);
+            datavar->FillSkimmedTree(datatree);
+            if (cut->isInCut(datavar->value)){
+                QuadHistos::FillHistograms(array, datavar->value);
+                if (NeedSaveTree) datavar->FillToTree();
             }
-            QuadHistos::WriteHistograms(array, myfile, Form("%s_%s", dataNameList[i].c_str(), CutNameList[j].c_str()));
-            array->Clear("C");
         }
+        QuadHistos::WriteHistograms(array, myfile, Form("Data_%s", AnalysisCutsName[i].c_str()));
+        array->Clear("C");
     }
+    datafile->Close();
 
     // read SameSide bkg
-    if (NeedSameSide == true) {
-        for (int i = 0; i < SameSidePathList.size(); i++){
-            TFile* file = new TFile(SameSidePathList[i].c_str());
-            SkimmedTree* tree = new SkimmedTree((TTree*)file->Get("tree"));
-            QuadVarManager* var = new QuadVarManager();
-            
-            for (int j = 0; j < CutNameList.size(); j++){
-                if (NeedSaveTree) var->CreateTree(Form("%s/%s_%s.root", SaveTreePath.c_str(), dataNameList[i].c_str(), CutNameList[j].c_str()));
-                QuadAnalysisCuts* cut = FindCut(CutNameList[j]);
-                TObjArray* array = new TObjArray();
-                QuadHistos::DefineHistograms(array);
-                for (int k = 0; k < tree->fChain->GetEntries(); k++) {
-                    tree->fChain->GetEntry(k);
-                    var->FillSkimmedTree(tree);
-                    if (cut->isInCut(var->value)){
-                        QuadHistos::FillHistograms(array, var->value);
-                        if (NeedSaveTree) var->FillToTree();
-                    }
-                }
-                QuadHistos::WriteHistograms(array, myfile, Form("%s_%s_bkg", dataNameList[i].c_str(), CutNameList[j].c_str()));
-                array->Clear("C");
+    TFile* samesidefile = new TFile(Form("%s/%s", commonpath.c_str(), SameSidePath.c_str()));
+    SkimmedTree* samesidetree = new SkimmedTree((TTree*)samesidefile->Get("tree"));
+    QuadVarManager* samesidevar = new QuadVarManager();
+
+    for (int i = 0; i < AnalysisCutsName.size(); i++){
+        if (NeedSaveTree) samesidevar->CreateTree(Form("%s/SkimmedTree/SameSide_%s.root", commonpath.c_str(), AnalysisCutsName[i].c_str()));
+        QuadAnalysisCuts* cut = FindCut(AnalysisCutsName[i]);
+        TObjArray* array = new TObjArray();
+        QuadHistos::DefineHistograms(array);
+        for (int k = 0; k < samesidetree->fChain->GetEntries(); k++) {
+            samesidetree->fChain->GetEntry(k);
+            samesidevar->FillSkimmedTree(samesidetree);
+            if (cut->isInCut(samesidevar->value)){
+                QuadHistos::FillHistograms(array, samesidevar->value);
+                if (NeedSaveTree) samesidevar->FillToTree();
             }
         }
+        QuadHistos::WriteHistograms(array, myfile, Form("SameSide_%s", AnalysisCutsName[i].c_str()));
+        array->Clear("C");
     }
+    samesidefile->Close();
 
     // read simulation
-    for (int i = 0; i < simPathList.size(); i++){
-        TFile* file = new TFile(simPathList[i].c_str());
-        SkimmedTree* tree = new SkimmedTree((TTree*)file->Get("tree"));
-        QuadVarManager* var = new QuadVarManager();
+    // X3872
+    TFile* X3872file = new TFile(Form("%s/%s", commonpath.c_str(), X3872ToyMCFilePath.c_str()));
+    SkimmedTree* X3872tree = new SkimmedTree((TTree*)X3872file->Get("tree"));
+    QuadVarManager* X3872var = new QuadVarManager();
 
-        // before selection
-        TObjArray* arraybf = new TObjArray();
-        QuadHistos::DefineHistograms(arraybf);
-        for (int k = 0; k < tree->fChain->GetEntries(); k++) {
-            tree->fChain->GetEntry(k);
-            var->FillSkimmedTree(tree);
-            QuadHistos::FillHistograms(arraybf, var->value);
-        }
-        QuadHistos::WriteHistograms(arraybf, myfile, Form("%s_before", simNameList[i].c_str()));
-        arraybf->Clear("C");
-        
-        for (int j = 0; j < CutNameList.size(); j++){
-            if (NeedSaveTree) var->CreateTree(Form("%s/%s_%s.root", SaveTreePath.c_str(), simNameList[i].c_str(), CutNameList[j].c_str()));
-            QuadAnalysisCuts* cut = FindCut(CutNameList[j]);
-            TObjArray* array = new TObjArray();
-            QuadHistos::DefineHistograms(array);
-            for (int k = 0; k < tree->fChain->GetEntries(); k++) {
-                tree->fChain->GetEntry(k);
-                var->FillSkimmedTree(tree);
-                if (cut->isInCut(var->value)){
-                    QuadHistos::FillHistograms(array, var->value);
-                    if (NeedSaveTree) var->FillToTree();
-                }
+    for (int i = 0; i < AnalysisCutsName.size(); i++){
+        if (NeedSaveTree) X3872var->CreateTree(Form("%s/SkimmedTree/X3872_%s.root", commonpath.c_str(), AnalysisCutsName[i].c_str()));
+        QuadAnalysisCuts* cut = FindCut(AnalysisCutsName[i]);
+        TObjArray* array = new TObjArray();
+        QuadHistos::DefineHistograms(array);
+        for (int k = 0; k < X3872tree->fChain->GetEntries(); k++) {
+            X3872tree->fChain->GetEntry(k);
+            X3872var->FillSkimmedTree(X3872tree);
+            if (cut->isInCut(X3872var->value)){
+                QuadHistos::FillHistograms(array, X3872var->value);
+                if (NeedSaveTree) X3872var->FillToTree();
             }
-            QuadHistos::WriteHistograms(array, myfile, Form("%s_%s", simNameList[i].c_str(), CutNameList[j].c_str()));
-            array->Clear("C");
         }
+        QuadHistos::WriteHistograms(array, myfile, Form("X3872_%s", AnalysisCutsName[i].c_str()));
+        array->Clear("C");
     }
+    X3872file->Close();
+
+    // Psi2S
+    TFile* Psi2Sfile = new TFile(Form("%s/%s", commonpath.c_str(), Psi2SToyMCFilePath.c_str()));
+    SkimmedTree* Psi2Stree = new SkimmedTree((TTree*)Psi2Sfile->Get("tree"));
+    QuadVarManager* Psi2Svar = new QuadVarManager();
+
+    for (int i = 0; i < AnalysisCutsName.size(); i++){
+        if (NeedSaveTree) Psi2Svar->CreateTree(Form("%s/SkimmedTree/Psi2S_%s.root", commonpath.c_str(), AnalysisCutsName[i].c_str()));
+        QuadAnalysisCuts* cut = FindCut(AnalysisCutsName[i]);
+        TObjArray* array = new TObjArray();
+        QuadHistos::DefineHistograms(array);
+        for (int k = 0; k < Psi2Stree->fChain->GetEntries(); k++) {
+            Psi2Stree->fChain->GetEntry(k);
+            Psi2Svar->FillSkimmedTree(Psi2Stree);
+            if (cut->isInCut(Psi2Svar->value)){
+                QuadHistos::FillHistograms(array, Psi2Svar->value);
+                if (NeedSaveTree) Psi2Svar->FillToTree();
+            }
+        }
+        QuadHistos::WriteHistograms(array, myfile, Form("Psi2S_%s", AnalysisCutsName[i].c_str()));
+        array->Clear("C");
+    }
+    Psi2Sfile->Close();
+
+    cout<<"Analysis finished!"<<endl;
 }
