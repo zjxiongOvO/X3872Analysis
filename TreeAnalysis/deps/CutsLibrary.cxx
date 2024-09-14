@@ -46,7 +46,6 @@ QuadAnalysisCuts* FindCut(string cutname){
     }
     // special cut for X3872 (4 - 35 GeV, performance plot)
     if (cutname == "FinaltuneX3872") {
-        cut->SetCut(QuadVarManager::kPt, 4, 35);
         cut->SetCut(QuadVarManager::kDileptonMass, 2.72, 3.2);
         cut->SetCut(QuadVarManager::kQ, 0.0, 0.25);
         cut->SetCut(QuadVarManager::kDihardonMass, 0.50, 999);
@@ -64,6 +63,16 @@ QuadAnalysisCuts* FindCut(string cutname){
         cut->SetCut(QuadVarManager::kDihardonMass, 0.5, 999);
         cut->SetCut(QuadVarManager::kPionPt1, 0.6, 999);
         cut->SetCut(QuadVarManager::kPionPt2, 0.6, 999);
+    }
+    // new test cut for X3872
+    if (cutname == "X3872test") {
+        cut->SetCut(QuadVarManager::kDileptonMass, 2.72, 3.2);
+        cut->SetCut(QuadVarManager::kQ, 0.0, 0.25);
+        cut->SetCut(QuadVarManager::kDihardonMass, 0.5, 999);
+        TCutG* cutg_DeltaR_Pt_X3872 = (TCutG*)file->Get("cutg_Tuned_DeltaR_Pt_X3872_0.80");
+        cut->SetCutG(cutg_DeltaR_Pt_X3872, QuadVarManager::kPt, QuadVarManager::kDeltaR, 1, 39); 
+        cut->SetCut(QuadVarManager::kPionPt1, 0.40, 999);
+        cut->SetCut(QuadVarManager::kPionPt2, 0.40, 999);
     }
     return cut;
 };

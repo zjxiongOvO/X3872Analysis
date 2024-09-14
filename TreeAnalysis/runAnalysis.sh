@@ -111,12 +111,3 @@ if [ "$SigExt" = true ]; then
     fi
     root -l -b -q "$X3872PATH/TreeAnalysis/tasks/RunSignalExtraction.cxx(\"$configpath\")"
 fi
-
-# # run BDT scan
-# if [ "$scan" = true ]; then
-#     if [ -z "$inputpath" ]; then
-#         echo "Error: input path is not set"
-#         exit 1
-#     fi
-#     root -l -b -q "$X3872PATH/TreeAnalysis/tasks/ScanBDT.cxx(\"$inputpath\", $start, $end, $Nstep)"
-# fi
